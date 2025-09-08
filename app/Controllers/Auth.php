@@ -9,26 +9,24 @@ class Auth extends BaseController
 {
     protected $userModel;
     protected $session;
-    protected $email;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
         $this->session = \Config\Services::session();
-        $this->email = \Config\Services::email();
         helper(['form', 'url']);
     }
 
     public function index()
     {
-        return redirect()->to('/auth/login');
+        return redirect()->to(base_url('login'));
     }
 
     public function login()
     {
         // If user is already logged in, redirect to dashboard
         if ($this->session->get('isLoggedIn')) {
-            return redirect()->to('/auth/dashboard');
+            return redirect()->to(base_url('dashboard'));
         }
 
         $data = [
@@ -38,18 +36,25 @@ class Auth extends BaseController
 
         if ($this->request->getMethod() === 'POST') {
             $rules = [
-                'login' => 'required', // Can be email or username
+                'login' => 'required',
                 'password' => 'required|min_length[6]'
             ];
 
             if ($this->validate($rules)) {
-                $login = $this->request->getPost('login'); // email or username
+                $login = $this->request->getPost('login');
                 $password = $this->request->getPost('password');
+                $role = $this->request->getPost('role'); // Optional role selection
 
                 // Find user by email or username
                 $user = $this->userModel->findByEmailOrUsername($login);
 
                 if ($user && password_verify($password, $user['password'])) {
+                    // If role is selected, check if it matches user's role
+                    if (!empty($role) && $user['role'] !== $role) {
+                        $this->session->setFlashdata('error', 'Selected role does not match your account role.');
+                        return redirect()->back()->withInput();
+                    }
+
                     $sessionData = [
                         'user_id' => $user['id'],
                         'username' => $user['username'],
@@ -61,61 +66,24 @@ class Auth extends BaseController
                     
                     $this->session->set($sessionData);
                     $this->session->setFlashdata('success', 'Login successful!');
-                    return redirect()->to('/auth/dashboard');
+                    return redirect()->to(base_url('dashboard'));
                 } else {
                     $this->session->setFlashdata('error', 'Invalid email/username or password');
+                    return redirect()->back()->withInput();
                 }
+            } else {
+                $data['validation'] = $this->validator;
             }
         }
 
         return view('auth/login', $data);
     }
 
-    public function register()
-    {
-        if ($this->session->get('isLoggedIn')) {
-            return redirect()->to('/auth/dashboard');
-        }
-
-        $data = [
-            'title' => 'Register',
-            'validation' => \Config\Services::validation()
-        ];
-
-        if ($this->request->getMethod() === 'POST') {
-            $rules = [
-                'username' => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
-                'name' => 'required|min_length[3]|max_length[100]',
-                'email' => 'required|valid_email|max_length[100]|is_unique[users.email]',
-                'password' => 'required|min_length[6]',
-                'confirm_password' => 'required|matches[password]'
-            ];
-
-            if ($this->validate($rules)) {
-                $userData = [
-                    'username' => $this->request->getPost('username'),
-                    'name' => $this->request->getPost('name'),
-                    'email' => $this->request->getPost('email'),
-                    'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
-                    'role' => 'user' // Default role
-                ];
-
-                if ($this->userModel->insert($userData)) {
-                    $this->session->setFlashdata('success', 'Registration successful! Please login.');
-                    return redirect()->to('/auth/login');
-                } else {
-                    $this->session->setFlashdata('error', 'Registration failed. Please try again.');
-                }
-            }
-        }
-
-        return view('auth/register', $data);
-    }
-
     public function dashboard()
     {
         if (!$this->session->get('isLoggedIn')) {
-            return redirect()->to('/auth/login');
+            $this->session->setFlashdata('error', 'Please login to access the dashboard.');
+            return redirect()->to(base_url('login'));
         }
 
         $data = [
@@ -134,7 +102,7 @@ class Auth extends BaseController
     public function forgotPassword()
     {
         if ($this->session->get('isLoggedIn')) {
-            return redirect()->to('/auth/dashboard');
+            return redirect()->to(base_url('dashboard'));
         }
 
         $data = [
@@ -160,25 +128,7 @@ class Auth extends BaseController
                     $this->session->setTempdata('reset_token', $token, 3600); // 1 hour
                     $this->session->setTempdata('reset_user_id', $user['id'], 3600);
                     
-                    $resetLink = base_url('auth/resetPassword/' . $token);
-                    
-                    // Email configuration (you need to set this up in app/Config/Email.php)
-                    $this->email->setTo($email);
-                    $this->email->setSubject('Password Reset Request');
-                    $this->email->setMessage("
-                        <h3>Password Reset Request</h3>
-                        <p>Hello {$user['name']},</p>
-                        <p>You have requested to reset your password. Click the link below to reset it:</p>
-                        <p><a href='{$resetLink}'>Reset Password</a></p>
-                        <p>This link will expire in 1 hour.</p>
-                        <p>If you didn't request this, please ignore this email.</p>
-                    ");
-
-                    if ($this->email->send()) {
-                        $this->session->setFlashdata('success', 'Password reset link has been sent to your email.');
-                    } else {
-                        $this->session->setFlashdata('error', 'Failed to send email. Please try again.');
-                    }
+                    $this->session->setFlashdata('success', 'Password reset instructions have been sent (contact administrator).');
                 } else {
                     $this->session->setFlashdata('error', 'Email not found in our records.');
                 }
@@ -188,69 +138,17 @@ class Auth extends BaseController
         return view('auth/forgot_password', $data);
     }
 
-    public function resetPassword($token = null)
-    {
-        if (!$token) {
-            return redirect()->to('/auth/login');
-        }
-
-        // Check if token matches session token
-        $sessionToken = $this->session->getTempdata('reset_token');
-        $userId = $this->session->getTempdata('reset_user_id');
-
-        if (!$sessionToken || $token !== $sessionToken || !$userId) {
-            $this->session->setFlashdata('error', 'Invalid or expired reset token.');
-            return redirect()->to('/auth/login');
-        }
-
-        $user = $this->userModel->find($userId);
-        if (!$user) {
-            $this->session->setFlashdata('error', 'User not found.');
-            return redirect()->to('/auth/login');
-        }
-
-        $data = [
-            'title' => 'Reset Password',
-            'validation' => \Config\Services::validation(),
-            'token' => $token
-        ];
-
-        if ($this->request->getMethod() === 'POST') {
-            $rules = [
-                'password' => 'required|min_length[6]',
-                'confirm_password' => 'required|matches[password]'
-            ];
-
-            if ($this->validate($rules)) {
-                $newPassword = password_hash($this->request->getPost('password'), PASSWORD_DEFAULT);
-                
-                if ($this->userModel->update($userId, ['password' => $newPassword])) {
-                    // Clear reset session data
-                    $this->session->removeTempdata('reset_token');
-                    $this->session->removeTempdata('reset_user_id');
-                    
-                    $this->session->setFlashdata('success', 'Password has been reset successfully. Please login with your new password.');
-                    return redirect()->to('/auth/login');
-                } else {
-                    $this->session->setFlashdata('error', 'Failed to update password. Please try again.');
-                }
-            }
-        }
-
-        return view('auth/reset_password', $data);
-    }
-
     public function logout()
     {
         $this->session->destroy();
         $this->session->setFlashdata('success', 'You have been logged out successfully.');
-        return redirect()->to('/auth/login');
+        return redirect()->to(base_url('login'));
     }
 
     public function profile()
     {
         if (!$this->session->get('isLoggedIn')) {
-            return redirect()->to('/auth/login');
+            return redirect()->to(base_url('login'));
         }
 
         $userId = $this->session->get('user_id');
