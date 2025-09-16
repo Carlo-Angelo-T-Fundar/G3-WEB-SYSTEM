@@ -26,7 +26,7 @@ class Auth extends BaseController
     {
         // If user is already logged in, redirect to dashboard
         if ($this->session->get('isLoggedIn')) {
-            return redirect()->to(base_url('dashboard'));
+            return redirect()->to($this->getRoleDashboardUrl($this->session->get('role')));
         }
 
         $data = [
@@ -37,20 +37,21 @@ class Auth extends BaseController
         if ($this->request->getMethod() === 'POST') {
             $rules = [
                 'login' => 'required',
-                'password' => 'required|min_length[6]'
+                'password' => 'required|min_length[6]',
+                'role' => 'required' // Made role required
             ];
 
             if ($this->validate($rules)) {
                 $login = $this->request->getPost('login');
                 $password = $this->request->getPost('password');
-                $role = $this->request->getPost('role'); // Optional role selection
+                $role = $this->request->getPost('role'); // Now required
 
                 // Find user by email or username
                 $user = $this->userModel->findByEmailOrUsername($login);
 
                 if ($user && password_verify($password, $user['password'])) {
-                    // If role is selected, check if it matches user's role
-                    if (!empty($role) && $user['role'] !== $role) {
+                    // Check if selected role matches user's role
+                    if ($user['role'] !== $role) {
                         $this->session->setFlashdata('error', 'Selected role does not match your account role.');
                         return redirect()->back()->withInput();
                     }
@@ -66,7 +67,9 @@ class Auth extends BaseController
                     
                     $this->session->set($sessionData);
                     $this->session->setFlashdata('success', 'Login successful!');
-                    return redirect()->to(base_url('dashboard'));
+                    
+                    // Redirect to role-specific dashboard
+                    return redirect()->to($this->getRoleDashboardUrl($user['role']));
                 } else {
                     $this->session->setFlashdata('error', 'Invalid email/username or password');
                     return redirect()->back()->withInput();
@@ -79,30 +82,39 @@ class Auth extends BaseController
         return view('auth/login', $data);
     }
 
-    public function dashboard()
+    public function redirectToDashboard()
     {
         if (!$this->session->get('isLoggedIn')) {
             $this->session->setFlashdata('error', 'Please login to access the dashboard.');
             return redirect()->to(base_url('login'));
         }
 
-        $data = [
-            'title' => 'Dashboard',
-            'user' => [
-                'username' => $this->session->get('username'),
-                'name' => $this->session->get('name'),
-                'email' => $this->session->get('email'),
-                'role' => $this->session->get('role')
-            ]
+        $role = $this->session->get('role');
+        return redirect()->to($this->getRoleDashboardUrl($role));
+    }
+
+    private function getRoleDashboardUrl($role)
+    {
+        $roleRoutes = [
+            'Accounts Payable Clerk' => 'accounts-payable/dashboard',
+            'Accounts Receivable Clerk' => 'accounts-receivable/dashboard',
+            'Warehouse Manager' => 'warehouse/dashboard',
+            'Warehouse Staff' => 'warehouse/dashboard',
+            'Inventory Auditor' => 'inventory/dashboard',
+            'Procurement Officer' => 'procurement/dashboard',
+            'IT Administrator' => 'it-admin/dashboard',
+            'Top Management' => 'management/dashboard',
+            'admin' => 'management/dashboard',
+            'user' => 'accounts-payable/dashboard' // Default for generic users
         ];
 
-        return view('auth/dashboard', $data);
+        return base_url($roleRoutes[$role] ?? 'accounts-payable/dashboard');
     }
 
     public function forgotPassword()
     {
         if ($this->session->get('isLoggedIn')) {
-            return redirect()->to(base_url('dashboard'));
+            return redirect()->to($this->getRoleDashboardUrl($this->session->get('role')));
         }
 
         $data = [
@@ -120,12 +132,9 @@ class Auth extends BaseController
                 $user = $this->userModel->where('email', $email)->first();
 
                 if ($user) {
-                    // Since your table doesn't have reset_token fields, 
-                    // we'll create a simple token and store it in session
                     $token = bin2hex(random_bytes(32));
                     
-                    // Store reset data in session (temporary solution)
-                    $this->session->setTempdata('reset_token', $token, 3600); // 1 hour
+                    $this->session->setTempdata('reset_token', $token, 3600);
                     $this->session->setTempdata('reset_user_id', $user['id'], 3600);
                     
                     $this->session->setFlashdata('success', 'Password reset instructions have been sent (contact administrator).');
@@ -184,7 +193,6 @@ class Auth extends BaseController
                 }
 
                 if ($this->userModel->update($userId, $updateData)) {
-                    // Update session data
                     $this->session->set([
                         'username' => $updateData['username'],
                         'name' => $updateData['name'],

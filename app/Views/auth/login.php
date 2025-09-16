@@ -85,8 +85,8 @@
                     
                     <div class="mb-3">
                         <label for="role" class="form-label">Role</label>
-                        <select class="form-select" name="role" id="role">
-                            <option value="">-- Select Role (Optional) --</option>
+                        <select class="form-select <?= $validation->hasError('role') ? 'is-invalid' : '' ?>" name="role" id="role" required>
+                            <option value="">-- Select Role --</option>
                             <option value="Warehouse Manager" <?= old('role') == 'Warehouse Manager' ? 'selected' : '' ?>>Warehouse Manager</option>
                             <option value="Warehouse Staff" <?= old('role') == 'Warehouse Staff' ? 'selected' : '' ?>>Warehouse Staff</option>
                             <option value="Inventory Auditor" <?= old('role') == 'Inventory Auditor' ? 'selected' : '' ?>>Inventory Auditor</option>
@@ -96,14 +96,11 @@
                             <option value="IT Administrator" <?= old('role') == 'IT Administrator' ? 'selected' : '' ?>>IT Administrator</option>
                             <option value="Top Management" <?= old('role') == 'Top Management' ? 'selected' : '' ?>>Top Management</option>
                         </select>
-                        <small class="form-text text-muted">Role selection is optional for login</small>
-                    </div>
-                    
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                        <label class="form-check-label" for="remember">
-                            Remember me
-                        </label>
+                        <?php if ($validation->hasError('role')): ?>
+                            <div class="invalid-feedback">
+                                <?= $validation->getError('role') ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                     
                     <div class="mb-3 text-end">
