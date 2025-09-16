@@ -206,6 +206,6 @@ class Auth extends BaseController
             }
         }
 
-        return view('auth/profile', $data);
+        return view('accounts_payable/settings ', $data);
     }
 }

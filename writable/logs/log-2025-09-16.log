@@ -1,0 +1,40 @@
+ERROR - 2025-09-16 09:23:57 --> mysqli_sql_exception: Duplicate entry 'admin' for key 'username' in D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\MySQLi\Connection.php:327
+Stack trace:
+#0 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\MySQLi\Connection.php(327): mysqli->query('INSERT INTO `us...', 0)
+#1 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\BaseConnection.php(729): CodeIgniter\Database\MySQLi\Connection->execute('INSERT INTO `us...')
+#2 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\BaseConnection.php(646): CodeIgniter\Database\BaseConnection->simpleQuery('INSERT INTO `us...')
+#3 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\BaseBuilder.php(1841): CodeIgniter\Database\BaseConnection->query('INSERT INTO `us...', NULL, false)
+#4 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\BaseBuilder.php(2230): CodeIgniter\Database\BaseBuilder->batchExecute('_insertBatch', 100)
+#5 D:\XAMPP\htdocs\G3-WEB-SYSTEM\app\Database\Seeds\UserSeeder.php(108): CodeIgniter\Database\BaseBuilder->insertBatch(Array)
+#6 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Database\Seeder.php(149): App\Database\Seeds\UserSeeder->run()
+#7 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Commands\Database\Seed.php(79): CodeIgniter\Database\Seeder->call('App\\Database\\Se...')
+#8 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\CLI\Commands.php(74): CodeIgniter\Commands\Database\Seed->run(Array)
+#9 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\CLI\Console.php(47): CodeIgniter\CLI\Commands->run('db:seed', Array)
+#10 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Boot.php(388): CodeIgniter\CLI\Console->run()
+#11 D:\XAMPP\htdocs\G3-WEB-SYSTEM\system\Boot.php(133): CodeIgniter\Boot::runCommand(Object(CodeIgniter\CLI\Console))
+#12 D:\XAMPP\htdocs\G3-WEB-SYSTEM\spark(87): CodeIgniter\Boot::bootSpark(Object(Config\Paths))
+#13 {main}
+CRITICAL - 2025-09-16 09:27:33 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "accounts_payable/pending_invoices.php"
+[Method: GET, Route: accounts-payable/pending-invoices]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('accounts_payable/pending_invoices.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('accounts_payable/pending_invoices', [], true)
+ 3 APPPATH\Controllers\AccountsPayable.php(66): view('accounts_payable/pending_invoices', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AccountsPayable->pendingInvoices()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AccountsPayable))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+CRITICAL - 2025-09-16 09:27:41 --> CodeIgniter\View\Exceptions\ViewException: Invalid file: "accounts_payable/pending_invoices.php"
+[Method: GET, Route: accounts-payable/pending-invoices]
+in SYSTEMPATH\Exceptions\FrameworkException.php on line 39.
+ 1 SYSTEMPATH\View\View.php(214): CodeIgniter\Exceptions\FrameworkException::forInvalidFile('accounts_payable/pending_invoices.php')
+ 2 SYSTEMPATH\Common.php(1167): CodeIgniter\View\View->render('accounts_payable/pending_invoices', [], true)
+ 3 APPPATH\Controllers\AccountsPayable.php(66): view('accounts_payable/pending_invoices', [...])
+ 4 SYSTEMPATH\CodeIgniter.php(933): App\Controllers\AccountsPayable->pendingInvoices()
+ 5 SYSTEMPATH\CodeIgniter.php(507): CodeIgniter\CodeIgniter->runController(Object(App\Controllers\AccountsPayable))
+ 6 SYSTEMPATH\CodeIgniter.php(354): CodeIgniter\CodeIgniter->handleRequest(null, Object(Config\Cache), false)
+ 7 SYSTEMPATH\Boot.php(363): CodeIgniter\CodeIgniter->run()
+ 8 SYSTEMPATH\Boot.php(68): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+ 9 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))

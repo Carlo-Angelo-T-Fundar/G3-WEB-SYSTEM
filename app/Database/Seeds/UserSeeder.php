@@ -8,6 +8,9 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
+        // Clear existing users first
+        $this->db->table('users')->truncate();
+        
         $data = [
             // Admin Users
             [
@@ -15,7 +18,7 @@ class UserSeeder extends Seeder
                 'name' => 'System Administrator',
                 'email' => 'admin@webuild.com',
                 'password' => password_hash('admin123', PASSWORD_DEFAULT),
-                'role' => 'admin',
+                'role' => 'IT Administrator',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -24,7 +27,7 @@ class UserSeeder extends Seeder
                 'name' => 'Project Manager',
                 'email' => 'manager@webuild.com',
                 'password' => password_hash('manager123', PASSWORD_DEFAULT),
-                'role' => 'admin',
+                'role' => 'Top Management',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -35,7 +38,7 @@ class UserSeeder extends Seeder
                 'name' => 'John Smith',
                 'email' => 'john.smith@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Warehouse Manager',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -44,7 +47,7 @@ class UserSeeder extends Seeder
                 'name' => 'Jane Doe',
                 'email' => 'jane.doe@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Warehouse Staff',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -53,7 +56,7 @@ class UserSeeder extends Seeder
                 'name' => 'Mike Johnson',
                 'email' => 'mike.johnson@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Inventory Auditor',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -62,16 +65,16 @@ class UserSeeder extends Seeder
                 'name' => 'Sarah Wilson',
                 'email' => 'sarah.wilson@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Procurement Officer',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
             [
                 'username' => 'accounts_payable',
                 'name' => 'David Brown',
-                'email' => 'david.brown@webuild.com',
+                'email' => '    ',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Accounts Payable Clerk',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -80,7 +83,7 @@ class UserSeeder extends Seeder
                 'name' => 'Lisa Davis',
                 'email' => 'lisa.davis@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'Accounts Receivable Clerk',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -89,7 +92,7 @@ class UserSeeder extends Seeder
                 'name' => 'Robert Garcia',
                 'email' => 'robert.garcia@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'user',
+                'role' => 'IT Administrator',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ],
@@ -98,7 +101,7 @@ class UserSeeder extends Seeder
                 'name' => 'Emily Martinez',
                 'email' => 'emily.martinez@webuild.com',
                 'password' => password_hash('password123', PASSWORD_DEFAULT),
-                'role' => 'admin',
+                'role' => 'Top Management',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s')
             ]
